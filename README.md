@@ -1,4 +1,4 @@
-# core
+# sqlTUI
 
 To install dependencies:
 
