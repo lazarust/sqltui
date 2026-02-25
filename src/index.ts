@@ -1,7 +1,9 @@
 import {
 	ASCIIFont,
 	Box,
+	KeyEvent,
 	createCliRenderer,
+	ConsolePosition,
 	Text,
 	TextAttributes,
 } from "@opentui/core";
@@ -48,3 +50,15 @@ renderer.root.add(
 		),
 	),
 );
+
+renderer.keyInput.on("keypress", (key) => {
+	if (key.name === "`") {
+		renderer.console.toggle()
+	}
+
+	if (key.name === "q") {
+		renderer.destroy()
+		process.exit()
+	}
+
+})
