@@ -8,24 +8,20 @@ import {
   TextAttributes,
 } from "@opentui/core";
 import { getTestRows } from "./utils/db.ts";
+import { Table } from "./components/Table.ts";
 
 const rowLines = (() => {
   try {
     const rows = getTestRows();
-    if (!rows.length) {
-      return [Text({ content: "No rows in test table", attributes: TextAttributes.DIM })];
-    }
-    return rows.map((row) => {
-      const cells = Object.entries(row).map(([key, value]) => `${key}: ${value}`);
-      return Text({ content: cells.join(" • ") });
-    });
+    return Table({ data: rows });
   } catch (error) {
-    return [
+    return Box(
+      { border: true, padding: 1 },
       Text({
         content: "Unable to load test table",
         attributes: TextAttributes.DIM,
       }),
-    ];
+    );
   }
 })();
 
@@ -46,7 +42,7 @@ renderer.root.add(
     ),
     Box(
       { flexDirection: "column", gap: 0, marginTop: 1, width: "80%" },
-      ...rowLines,
+      rowLines,
     ),
   ),
 );
