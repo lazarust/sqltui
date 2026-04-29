@@ -24,6 +24,7 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 - `src/index.ts`: renderer setup, module-level state, keyboard handling, shutdown
 - `src/components/Table.ts`: visual rendering of the grid
 - `src/utils/db.ts`: SQLite reads, writes, and column validation
+- `src/utils/db.test.ts`: DB utility and coercion tests
 - `README.md`: minimal setup/run notes
 - `tsconfig.json`: strict TypeScript settings
 
@@ -46,6 +47,7 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 ### Build / typecheck
 There is no dedicated `build` script.
 Use `bunx tsc --noEmit` as the main non-interactive validation command.
+A `typecheck` script also exists in `package.json`: `bun run typecheck`.
 
 ### Lint
 - No lint script exists.
@@ -53,8 +55,8 @@ Use `bunx tsc --noEmit` as the main non-interactive validation command.
 - Do not invent a linting stack during unrelated tasks.
 
 ### Test
-There is no test script in `package.json`, and there are currently no test files.
-`bun test` currently fails because no `*.test.*` or `*.spec.*` files exist.
+Test files exist in `src/**/*.test.ts`.
+`bun test` runs all test files.
 
 - Run all tests once tests are added: `bun test`
 - Run a single test file: `bun test path/to/file.test.ts`
