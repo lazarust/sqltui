@@ -7,11 +7,12 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 ## Project Snapshot
 - Runtime: Bun
 - Language: TypeScript
-- UI: OpenTUI Core (`@opentui/core`), imperative API
-- Entry point: `src/index.ts`
-- Main UI component: `src/components/Table.ts`
+- UI: OpenTUI React (`@opentui/react`), React-based declarative API
+- Entry point: `src/index.tsx`
+- Main UI component: `src/components/Table.tsx`
 - Database utilities: `src/utils/db.ts`
 - Local SQLite file: `test.db`
+- State Management: Effect/Atom (`effect/unstable/reactivity/Atom`)
 
 ## Existing Repo Rules
 - Existing `AGENTS.md`: none before this file
@@ -21,12 +22,18 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 - If any of those appear later, treat them as higher-priority repo instructions and merge them with this file.
 
 ## Repo Layout
-- `src/index.ts`: renderer setup, module-level state, keyboard handling, shutdown
-- `src/components/Table.ts`: visual rendering of the grid
+- `src/index.tsx`: entry point, creates renderer, handles init errors
+- `src/App.tsx`: main component with keyboard handling, state management, cleanup
+- `src/components/Table.tsx`: visual rendering of the grid using React
+- `src/components/Header.tsx`: app header with status info (row count)
+- `src/components/Footer.tsx`: contextual keyboard hints
+- `src/state.ts`: Effect/Atom reactive state definitions
+- `src/colors.ts`: minimal color palette (Tokyo Night style)
 - `src/utils/db.ts`: SQLite reads, writes, and column validation
 - `src/utils/db.test.ts`: DB utility and coercion tests
+- `src/utils/dataLoad.ts`: data loading helper
 - `README.md`: minimal setup/run notes
-- `tsconfig.json`: strict TypeScript settings
+- `tsconfig.json`: strict TypeScript settings with JSX
 
 ## Environment Notes
 - Use Bun, not Node.js or npm, for normal repo work.
@@ -41,8 +48,8 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 
 ### Run the app
 - Package script: `bun dev`
-- Current script definition: `bun run --watch src/index.ts`
-- Direct run without watch mode: `bun run src/index.ts`
+- Current script definition: `bun run --watch src/index.tsx`
+- Direct run without watch mode: `bun run src/index.tsx`
 
 ### Build / typecheck
 There is no dedicated `build` script.
@@ -114,17 +121,16 @@ Test files exist in `src/**/*.test.ts`.
 - Preserve the existing SQL-safety pattern: validate column names before interpolating identifiers.
 
 ## OpenTUI Guidance
-- This repo uses OpenTUI Core's imperative style, not React or Solid.
-- Create the renderer with `createCliRenderer()`.
+- This repo uses OpenTUI React's declarative style (`@opentui/react`).
+- Create the renderer with `createCliRenderer()` and render React components with `createRoot()`.
 - Shut down through `renderer.destroy()` and related cleanup helpers.
 - Do not call `process.exit()` without ensuring terminal cleanup first.
-- Preserve stable renderable IDs like `table-root` and `table-container`.
-- Keep `updateTable()` and selection synchronization logic coherent when changing UI state.
+- Use React hooks like `useAtom`, `useAtomValue`, `useKeyboard`, and `useTerminalDimensions`.
 - Expect `console.log` output to go to the OpenTUI console overlay while the app runs.
 
 ## State And Data Flow
-- App state currently lives in module-level variables in `src/index.ts`.
-- The renderer is created once, then the table subtree is replaced during updates.
+- App state lives in Effect/Atom atoms defined in `src/state.ts`.
+- The renderer is created once in `src/index.tsx`, then React handles updates.
 - Reads go through `getTestRows()`.
 - Writes go through `updateTestCell()`.
 - Numeric edits are coerced before being written back to SQLite.
