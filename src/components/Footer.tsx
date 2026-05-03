@@ -8,32 +8,34 @@ export const Footer = () => {
 	if (editMode) {
 		return (
 			<box height={1} flexDirection="row">
-				<text wrapMode="none">
-					<span fg={colors.accent}>esc</span>
-					<span fg={colors.muted}> cancel  </span>
-					<span fg={colors.accent}>enter</span>
-					<span fg={colors.muted}> save  </span>
-					<span fg={colors.accent}>backspace</span>
-					<span fg={colors.muted}> delete</span>
-				</text>
+				<text wrapMode="none" fg={colors.accent}>esc</text>
+				<text wrapMode="none" fg={colors.muted}> cancel</text>
+				<text wrapMode="none" fg={colors.muted}>  │  </text>
+				<text wrapMode="none" fg={colors.accent}>enter</text>
+				<text wrapMode="none" fg={colors.muted}> save</text>
+				<text wrapMode="none" fg={colors.muted}>  │  </text>
+				<text wrapMode="none" fg={colors.accent}>⌫</text>
+				<text wrapMode="none" fg={colors.muted}> delete</text>
 			</box>
 		);
 	}
 
 	return (
 		<box height={1} flexDirection="row">
-			<text wrapMode="none">
-				<span fg={colors.accent}>j/k</span>
-				<span fg={colors.muted}> navigate  </span>
-				<span fg={colors.accent}>h/l</span>
-				<span fg={colors.muted}> columns  </span>
-				<span fg={colors.accent}>i</span>
-				<span fg={colors.muted}> edit  </span>
-				<span fg={colors.accent}>ctrl+r</span>
-				<span fg={colors.muted}> refresh  </span>
-				<span fg={colors.accent}>q</span>
-				<span fg={colors.muted}> quit</span>
-			</text>
+			<text wrapMode="none" fg={colors.accent}>j/k</text>
+			<text wrapMode="none" fg={colors.muted}> navigate</text>
+			<text wrapMode="none" fg={colors.muted}>  │  </text>
+			<text wrapMode="none" fg={colors.accent}>h/l</text>
+			<text wrapMode="none" fg={colors.muted}> columns</text>
+			<text wrapMode="none" fg={colors.muted}>  │  </text>
+			<text wrapMode="none" fg={colors.accent}>i</text>
+			<text wrapMode="none" fg={colors.muted}> edit</text>
+			<text wrapMode="none" fg={colors.muted}>  │  </text>
+			<text wrapMode="none" fg={colors.accent}>ctrl+r</text>
+			<text wrapMode="none" fg={colors.muted}> refresh</text>
+			<text wrapMode="none" fg={colors.muted}>  │  </text>
+			<text wrapMode="none" fg={colors.accent}>q</text>
+			<text wrapMode="none" fg={colors.muted}> quit</text>
 		</box>
 	);
 };

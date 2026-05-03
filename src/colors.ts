@@ -20,6 +20,12 @@ export const colors = {
 
 	// Status
 	error: "#f7768e",
+
+	// Extended palette for improved styling
+	rowIndicator: "#7aa2f7",  // Selection arrow color
+	rowNumber: "#565f89",     // Gutter number color
+	statusText: "#9ece6a",    // Status indicators (edit mode)
+	hoverBg: "#1f2335",       // Hover/alternating row bg
 } as const;
 
 export type Colors = typeof colors;

@@ -9,6 +9,7 @@ import {
 	loadErrorAtom,
 } from "../state.ts";
 import { colors } from "../colors.ts";
+import { centerCell } from "../utils/primitives.ts";
 
 // Utility functions (same as original Table.ts)
 const truncate = (str: string, width: number): string => {
@@ -21,14 +22,6 @@ const truncate = (str: string, width: number): string => {
 const formatCell = (str: string, width: number): string => {
 	const truncated = truncate(str, width);
 	return truncated.padEnd(width, " ");
-};
-
-const center = (str: string, width: number): string => {
-	const truncated = truncate(str, width);
-	const padding = width - truncated.length;
-	const left = Math.floor(padding / 2);
-	const right = padding - left;
-	return " ".repeat(left) + truncated + " ".repeat(right);
 };
 
 export const Table = () => {
@@ -97,25 +90,32 @@ export const Table = () => {
 		return Math.max(headerLen, dataLen) + 2;
 	});
 
-	// Build top border
+	// Calculate dynamic gutter width based on row count
+	const rowCount = data.length;
+	const gutterWidth = Math.max(3, String(rowCount).length + 2); // " 1 " to " 100 "
+
+	// Build top border (with gutter space)
 	const topBorder =
 		"┌" +
-		widths.map((w, i) => "─".repeat(w) + (i < widths.length - 1 ? "┬" : "")).join("") +
+		"─".repeat(gutterWidth + 1) +
+		widths.map((w, i) => "┬" + "─".repeat(w)).join("") +
 		"┐";
 
-	// Build separator
+	// Build separator (with gutter space)
 	const separator =
 		"├" +
-		widths.map((w, i) => "─".repeat(w) + (i < widths.length - 1 ? "┼" : "")).join("") +
+		"─".repeat(gutterWidth + 1) +
+		widths.map((w, i) => "┼" + "─".repeat(w)).join("") +
 		"┤";
 
-	// Build bottom border
+	// Build bottom border (with gutter space)
 	const bottomBorder =
 		"└" +
-		widths.map((w, i) => "─".repeat(w) + (i < widths.length - 1 ? "┴" : "")).join("") +
+		"─".repeat(gutterWidth + 1) +
+		widths.map((w, i) => "┴" + "─".repeat(w)).join("") +
 		"┘";
 
-	// Render a single row
+	// Render a single row with gutter
 	const renderRow = (
 		rowCells: string[],
 		options: {
@@ -126,11 +126,27 @@ export const Table = () => {
 			cellForegroundColor?: string;
 			selectedCellAttributes?: number;
 			cellAttributes?: number;
+			rowIndex?: number;
+			isSelectedRow?: boolean;
 		} = {},
 	) => {
+		const rowNum = options.rowIndex ?? 0;
+		const isSelected = options.isSelectedRow ?? false;
+		const indicator = isSelected ? "▶" : " ";
+		const rowGutter = ` ${String(rowNum + 1).padStart(gutterWidth - 2, " ")} `;
+
 		return (
 			<box flexDirection="row">
 				<text fg={colors.border}>│</text>
+				{/* Indicator + Number gutter */}
+				<box width={gutterWidth} flexDirection="row" backgroundColor={options.rowBackgroundColor ?? colors.background}>
+					<text wrapMode="none" fg={isSelected ? colors.rowIndicator : colors.muted}>
+						{indicator}
+					</text>
+					<text wrapMode="none" fg={colors.rowNumber}>
+						{rowGutter}
+					</text>
+				</box>
 				{rowCells.map((cell, index) => {
 					const isSelectedCell = options.selectedCellIndex === index;
 					const cellBg = isSelectedCell
@@ -160,8 +176,8 @@ export const Table = () => {
 		);
 	};
 
-	// Header row cells
-	const headerCells = columns.map((col, i) => center(col, widths[i]!));
+	// Header row cells (uppercase for emphasis)
+	const headerCells = columns.map((col, i) => centerCell(col.toUpperCase(), widths[i]!));
 
 	// Data rows
 	const dataRows = data.map((row, rowIndex) => {
@@ -191,6 +207,8 @@ export const Table = () => {
 			cells: cellContents,
 			options: {
 				rowBackgroundColor: bgColor,
+				rowIndex: rowIndex,
+				isSelectedRow: isSelected,
 				...(isSelected ? { selectedCellIndex: selectedColIndex } : {}),
 				selectedCellBackgroundColor: editMode ? colors.selectedBgEdit : colors.activeCellBg,
 				selectedCellForegroundColor: colors.white,
@@ -203,13 +221,14 @@ export const Table = () => {
 	return (
 		<box
 			flexDirection="column"
-			alignItems="flex-start"
 			backgroundColor={colors.background}
 			gap={0}
 		>
 			<text fg={colors.border}>{topBorder}</text>
 			{renderRow(headerCells, {
 				rowBackgroundColor: colors.headerBg,
+				rowIndex: -1,
+				isSelectedRow: false,
 				selectedCellIndex: selectedColIndex,
 				selectedCellBackgroundColor: colors.accent,
 				selectedCellForegroundColor: colors.white,

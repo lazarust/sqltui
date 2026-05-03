@@ -293,8 +293,17 @@ export const App = ({ initialData, initialError }: AppProps) => {
 	return (
 		<box flexDirection="column" height={height ?? 24}>
 			<Header />
-			<box flexGrow={1} flexDirection="column">
-				<Table />
+			{/* Centered table area - fills remaining vertical space */}
+			<box 
+				flexGrow={1} 
+				flexDirection="row"
+				justifyContent="center"
+				alignItems="center"
+			>
+				{/* Table container - centered */}
+				<box flexDirection="column">
+					<Table />
+				</box>
 			</box>
 			<Footer />
 		</box>
