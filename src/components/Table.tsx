@@ -1,5 +1,6 @@
 import { TextAttributes } from "@opentui/core";
 import { useAtomValue } from "@effect/atom-react";
+import type { ReactNode } from "react";
 import {
   tableDataAtom,
   selectedRowIndexAtom,
@@ -9,23 +10,17 @@ import {
   loadErrorAtom,
 } from "../state.ts";
 import { colors } from "../colors.ts";
-import { centerCell } from "../utils/primitives.ts";
 
-// Utility functions (same as original Table.ts)
-const truncate = (str: string, width: number): string => {
-  if (width <= 0) return "";
-  if (str.length <= width) return str;
-  if (width === 1) return str.substring(0, 1);
-  return str.substring(0, width - 1) + "…";
-};
+const MIN_COLUMN_WIDTH = 8;
+const MAX_COLUMN_WIDTH = 30;
+const GUTTER_WIDTH = 5;
 
-const formatCell = (str: string, width: number): string => {
-  const truncated = truncate(str, width);
-  return truncated.padEnd(width, " ");
-};
+interface TableProps {
+  width?: number;
+  height?: number;
+}
 
-export const Table = () => {
-  // Read reactive state from atoms
+export const Table = (props: TableProps) => {
   const data = useAtomValue(tableDataAtom);
   const selectedRowIndex = useAtomValue(selectedRowIndexAtom);
   const selectedColIndex = useAtomValue(selectedColIndexAtom);
@@ -33,11 +28,10 @@ export const Table = () => {
   const editValue = useAtomValue(editValueAtom);
   const loadError = useAtomValue(loadErrorAtom);
 
-  // Error state
   if (loadError) {
     return (
       <box
-        border={true}
+        border
         borderStyle="single"
         borderColor={colors.border}
         backgroundColor={colors.background}
@@ -48,11 +42,10 @@ export const Table = () => {
     );
   }
 
-  // Empty data state
   if (!data.length) {
     return (
       <box
-        border={true}
+        border
         borderStyle="single"
         borderColor={colors.border}
         backgroundColor={colors.background}
@@ -65,11 +58,10 @@ export const Table = () => {
 
   const columns = Object.keys(data[0] as Record<string, unknown>);
 
-  // Empty schema state
   if (!columns.length) {
     return (
       <box
-        border={true}
+        border
         borderStyle="single"
         borderColor={colors.border}
         backgroundColor={colors.background}
@@ -80,166 +72,129 @@ export const Table = () => {
     );
   }
 
-  // Calculate column widths
-  const widths = columns.map((col) => {
+  const columnWidths = columns.map((col) => {
     const headerLen = col.length;
     const dataLen = Math.max(
       ...data.map((row) => String((row as Record<string, unknown>)[col] ?? "").length),
       0,
     );
-    return Math.max(headerLen, dataLen) + 2;
+    const width = Math.max(headerLen, dataLen) + 2;
+    return Math.min(Math.max(width, MIN_COLUMN_WIDTH), MAX_COLUMN_WIDTH);
   });
 
-  // Calculate dynamic gutter width based on row count
-  const rowCount = data.length;
-  const gutterWidth = Math.max(3, String(rowCount).length + 2); // " 1 " to " 100 "
+  const totalWidth =
+    GUTTER_WIDTH + columnWidths.reduce((sum, w) => sum + w + 1, 0) + 1;
+  const tableHeight = 12;
+  const visibleRows = tableHeight - 1;
+  const needsScroll = data.length > visibleRows;
+  const maxStartRow = Math.max(0, data.length - visibleRows);
+  const startRow = needsScroll ? Math.min(selectedRowIndex, maxStartRow) : 0;
+  const endRow = startRow + visibleRows;
+  const visibleData = data.slice(startRow, endRow);
 
-  // Build top border (with gutter space)
-  const topBorder =
-    "┌" +
-    "─".repeat(gutterWidth + 1) +
-    widths.map((w, _) => "┬" + "─".repeat(w)).join("") +
-    "┐";
-
-  // Build separator (with gutter space)
-  const separator =
-    "├" +
-    "─".repeat(gutterWidth + 1) +
-    widths.map((w, _) => "┼" + "─".repeat(w)).join("") +
-    "┤";
-
-  // Build bottom border (with gutter space)
-  const bottomBorder =
-    "└" +
-    "─".repeat(gutterWidth + 1) +
-    widths.map((w, _) => "┴" + "─".repeat(w)).join("") +
-    "┘";
-
-  // Render a single row with gutter
-  const renderRow = (
-    rowCells: string[],
-    options: {
-      rowBackgroundColor?: string;
-      selectedCellIndex?: number;
-      selectedCellBackgroundColor?: string;
-      selectedCellForegroundColor?: string;
-      cellForegroundColor?: string;
-      selectedCellAttributes?: number;
-      cellAttributes?: number;
-      rowIndex?: number;
-      isSelectedRow?: boolean;
-      reactKey?: string | number;
-    } = {},
-  ) => {
-    const rowNum = options.rowIndex ?? 0;
-    const isSelected = options.isSelectedRow ?? false;
-    const indicator = isSelected ? "▶" : " ";
-    const rowGutter = ` ${String(rowNum + 1).padStart(gutterWidth - 2, " ")} `;
-
+  const renderHeader = (): ReactNode => {
+    const gutterCell = " ".repeat(GUTTER_WIDTH - 1);
     return (
-      <box {...(options.reactKey !== undefined ? { key: options.reactKey } : {})} flexDirection="row">
-        <text fg={colors.border}>│</text>
-        {/* Indicator + Number gutter */}
-        <box width={gutterWidth} flexDirection="row" backgroundColor={options.rowBackgroundColor ?? colors.background}>
-          <text wrapMode="none" fg={isSelected ? colors.rowIndicator : colors.muted}>
-            {indicator}
-          </text>
-          <text wrapMode="none" fg={colors.rowNumber}>
-            {rowGutter}
+      <box flexDirection="row" backgroundColor={colors.headerBg}>
+        <box width={GUTTER_WIDTH} backgroundColor={colors.headerBg}>
+          <text
+            fg={colors.text}
+            attributes={TextAttributes.BOLD}
+          >
+            {gutterCell}
           </text>
         </box>
-        {rowCells.map((cell, index, key) => {
-          const isSelectedCell = options.selectedCellIndex === index;
-          const cellBg = isSelectedCell
-            ? options.selectedCellBackgroundColor ?? options.rowBackgroundColor ?? colors.background
-            : options.rowBackgroundColor ?? colors.background;
-          const cellFg = isSelectedCell
-            ? options.selectedCellForegroundColor ?? options.cellForegroundColor ?? colors.text
-            : options.cellForegroundColor ?? colors.text;
-          const cellAttrs = isSelectedCell
-            ? options.selectedCellAttributes ?? options.cellAttributes
-            : options.cellAttributes;
-
+        {columns.map((col, colIndex) => {
+          const w = columnWidths[colIndex]!;
+          const displayCol = col.toUpperCase().slice(0, w - 1);
+          const padded = displayCol + " ".repeat(w - displayCol.length);
           return (
-            <box key={index} flexDirection="row" backgroundColor={cellBg}>
-              <text
-                wrapMode="none"
-                fg={cellFg}
-                {...(cellAttrs !== undefined ? { attributes: cellAttrs } : {})}
-              >
-                {formatCell(cell, widths[index]!)}
+            <box
+              key={colIndex}
+              width={w}
+              backgroundColor={colors.headerBg}
+            >
+              <text fg={colors.text} attributes={TextAttributes.BOLD}>
+                {padded}
               </text>
             </box>
           );
         })}
-        {rowCells.length > 0 ? <text fg={colors.border}>│</text> : null}
       </box>
     );
   };
 
-  // Header row cells (uppercase for emphasis)
-  const headerCells = columns.map((col, i) => centerCell(col.toUpperCase(), widths[i]!));
-
-  // Data rows
-  const dataRows = data.map((row, rowIndex) => {
-    const isSelected = selectedRowIndex === rowIndex;
+  const renderRow = (
+    rowIndex: number,
+    row: Record<string, unknown>,
+    isSelected: boolean,
+  ): ReactNode => {
+    const rowNum = String(rowIndex + 1).padStart(GUTTER_WIDTH - 2, " ");
+    const indicator = isSelected ? "▶" : " ";
     const bgColor = isSelected
       ? editMode
         ? colors.selectedBgEdit
         : colors.selectedBg
       : colors.background;
+    const fgColor = isSelected ? colors.white : colors.text;
 
-    const cellContents = columns.map((col, colIndex) => {
+    const cells = columns.map((col, colIndex) => {
       const isEditing = isSelected && editMode && selectedColIndex === colIndex;
-      const value = isEditing
-        ? editValue
-        : String((row as Record<string, unknown>)[col] ?? "");
-      const width = widths[colIndex]!;
+      const w = columnWidths[colIndex]!;
+      let value = String(row[col] ?? "");
 
-      let displayValue = truncate(value, width);
-      if (isEditing) {
-        displayValue = truncate(value, width - 1) + "█";
+      if (isEditing && colIndex === selectedColIndex) {
+        value = editValue;
       }
 
-      return displayValue;
+      const displayValue = value.slice(0, w - 1);
+      const padded = displayValue + " ".repeat(w - displayValue.length);
+      const cellBg = isSelected && colIndex === selectedColIndex
+        ? (editMode ? colors.selectedBgEdit : colors.activeCellBg)
+        : bgColor;
+
+      return (
+        <box
+          key={colIndex}
+          width={w}
+          backgroundColor={cellBg}
+        >
+          <text
+            fg={isSelected && colIndex === selectedColIndex ? colors.white : fgColor}
+          >
+            {padded}
+          </text>
+        </box>
+      );
     });
 
-    return {
-      cells: cellContents,
-      options: {
-        rowBackgroundColor: bgColor,
-        rowIndex: rowIndex,
-        isSelectedRow: isSelected,
-        ...(isSelected ? { selectedCellIndex: selectedColIndex } : {}),
-        selectedCellBackgroundColor: editMode ? colors.selectedBgEdit : colors.activeCellBg,
-        selectedCellForegroundColor: colors.white,
-        cellForegroundColor: isSelected ? colors.white : colors.text,
-        reactKey: rowIndex,
-      },
-    };
-  });
+    return (
+      <box key={rowIndex} flexDirection="row" backgroundColor={bgColor}>
+        <box
+          width={GUTTER_WIDTH}
+          backgroundColor={bgColor}
+          flexDirection="row"
+        >
+          <text fg={isSelected ? colors.rowIndicator : colors.muted}>
+            {indicator}
+          </text>
+          <text fg={colors.rowNumber}>{rowNum}</text>
+        </box>
+        {cells}
+      </box>
+    );
+  };
 
   return (
-    <box
-      flexDirection="column"
-      backgroundColor={colors.background}
-      gap={0}
-    >
-      <text fg={colors.border}>{topBorder}</text>
-      {renderRow(headerCells, {
-        rowBackgroundColor: colors.headerBg,
-        rowIndex: -1,
-        isSelectedRow: false,
-        selectedCellIndex: selectedColIndex,
-        selectedCellBackgroundColor: colors.accent,
-        selectedCellForegroundColor: colors.white,
-        cellForegroundColor: colors.text,
-        cellAttributes: TextAttributes.BOLD,
-        selectedCellAttributes: TextAttributes.BOLD,
-      })}
-      <text fg={colors.border}>{separator}</text>
-      {dataRows.map(({ cells, options }) => renderRow(cells, options))}
-      <text fg={colors.border}>{bottomBorder}</text>
+    <box flexDirection="column" backgroundColor={colors.background}>
+      <box flexDirection="column" width={totalWidth}>
+        {renderHeader()}
+      </box>
+      <box flexDirection="column">
+        {visibleData.map((row, rowIndex) =>
+          renderRow(rowIndex + startRow, row as Record<string, unknown>, selectedRowIndex === rowIndex + startRow)
+        )}
+      </box>
     </box>
   );
 };
