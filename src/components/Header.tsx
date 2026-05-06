@@ -6,7 +6,6 @@ import { colors } from "../colors.ts";
 export const Header = () => {
   const tableData = useAtomValue(tableDataAtom);
 
-  const rowCount = tableData.length;
   const columns = tableData.length > 0
     ? Object.keys(tableData[0] as Record<string, unknown>)
     : [];
@@ -18,10 +17,6 @@ export const Header = () => {
       <box height={1} flexDirection="row">
         <text wrapMode="none" fg={colors.accent} attributes={TextAttributes.BOLD}>
           SQLTUI
-        </text>
-        <text wrapMode="none" fg={colors.muted}>  │  </text>
-        <text wrapMode="none" fg={colors.text}>
-          {rowCount} rows
         </text>
         {columns.length > 0 && (
           <>
