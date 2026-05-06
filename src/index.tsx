@@ -4,24 +4,23 @@ import { App } from "./App.tsx";
 import { loadTableData } from "./utils/dataLoad.ts";
 
 // Try to load initial data before creating renderer
-// This allows us to handle DB initialization errors gracefully
 let initialData: Array<Record<string, unknown>> = [];
 let initialError: string | null = null;
 
 try {
-	initialData = loadTableData();
+  initialData = loadTableData();
 } catch (error) {
-	initialError = error instanceof Error ? error.message : String(error);
-	console.error("Failed to load initial data:", error);
+  initialError = error instanceof Error ? error.message : String(error);
+  console.error("Failed to load initial data:", error);
 }
 
 const renderer = await createCliRenderer({
-	consoleOptions: {
-		position: ConsolePosition.BOTTOM,
-		sizePercent: 30,
-	},
+  consoleOptions: {
+    position: ConsolePosition.BOTTOM,
+    sizePercent: 30,
+  },
 });
 
 createRoot(renderer).render(
-	<App initialData={initialData} initialError={initialError} />,
+  <App initialData={initialData} initialError={initialError} />,
 );
