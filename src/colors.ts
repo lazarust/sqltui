@@ -26,6 +26,9 @@ export const colors = {
 	rowNumber: "#565f89",     // Gutter number color
 	statusText: "#9ece6a",    // Status indicators (edit mode)
 	hoverBg: "#1f2335",       // Hover/alternating row bg
+
+	// Sidebar
+	sidebarFocusedBorder: "#7aa2f7",
 } as const;
 
 export type Colors = typeof colors;

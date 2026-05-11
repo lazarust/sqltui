@@ -10,12 +10,17 @@ import {
   loadErrorAtom,
   tableDataAtom,
   pendingQuitAtom,
+  selectedTableNameAtom,
+  tableListAtom,
+  selectedTableIndexAtom,
+  sidebarFocusedAtom,
 } from "./state.ts";
 import { Header } from "./components/Header.tsx";
 import { Footer } from "./components/Footer.tsx";
 import { Table } from "./components/Table.tsx";
-import { closeDatabase, updateTestCell } from "./utils/db.ts";
-import { loadTableData } from "./utils/dataLoad.ts";
+import { SideBar } from "./components/SideBar.tsx";
+import { closeDatabase, updateCell } from "./utils/db.ts";
+import { loadTableData, loadTableList } from "./utils/dataLoad.ts";
 import { colors } from "./colors.ts";
 import type { SQLiteValue } from "./utils/db.ts";
 
@@ -36,20 +41,41 @@ export const App = ({ initialData, initialError }: AppProps) => {
   const [_loadError, setLoadError] = useAtom(loadErrorAtom);
   const [_tableData, setTableData] = useAtom(tableDataAtom);
   const [pendingQuit, setPendingQuit] = useAtom(pendingQuitAtom);
+  const [_tableList, setTableList] = useAtom(tableListAtom);
+  const [selectedTableIndex, setSelectedTableIndex] = useAtom(selectedTableIndexAtom);
+  const [selectedTableName, setSelectedTableName] = useAtom(selectedTableNameAtom);
+  const [sidebarFocused, setSidebarFocused] = useAtom(sidebarFocusedAtom);
+  const tableList = useAtomValue(tableListAtom);
 
-  // Get current data for keyboard handlers
   const data = useAtomValue(tableDataAtom);
   const columns = data.length > 0 ? Object.keys(data[0] as Record<string, unknown>) : [];
 
-  // Initialize with server-fetched data
   useEffect(() => {
-    setTableData(initialData);
-    setLoadError(initialError);
+    try {
+      const tables = loadTableList();
+      setTableList(tables);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : String(error));
+    }
 
     return () => {
       closeDatabase();
     };
   }, []);
+
+  const handleTableSelect = useCallback((tableName: string) => {
+    setSelectedTableName(tableName);
+    setSelectedTableIndex(tableList.findIndex((t) => t === tableName));
+    setSidebarFocused(false);
+    setSelectedRow(0);
+    setSelectedCol(0);
+    try {
+      setTableData(loadTableData(tableName));
+      setLoadError(null);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : String(error));
+    }
+  }, [tableList, setSelectedTableName, setSelectedTableIndex, setSidebarFocused, setSelectedRow, setSelectedCol, setTableData, setLoadError]);
 
   // Set background color
   useEffect(() => {
@@ -120,10 +146,10 @@ export const App = ({ initialData, initialError }: AppProps) => {
               (row as Record<string, unknown>)[currentCol],
               editValue,
             );
-            updateTestCell(rowId, currentCol, nextValue);
-            // Reload from DB
-            setTableData(loadTableData());
-            setLoadError(null);
+            if (selectedTableName) {
+              updateCell(selectedTableName, rowId, currentCol, nextValue);
+              setTableData(loadTableData(selectedTableName));
+            }
           } catch (error) {
             console.error("Unable to save edit:", error);
             return;
@@ -258,6 +284,44 @@ export const App = ({ initialData, initialError }: AppProps) => {
       return;
     }
 
+    // Toggle sidebar focus
+    if (key.name === "t") {
+      setSidebarFocused(!sidebarFocused);
+      return;
+    }
+
+    // Sidebar keyboard navigation
+    if (sidebarFocused) {
+      if (key.name === "j") {
+        if (selectedTableIndex === -1) {
+          setSelectedTableIndex(0);
+        } else if (selectedTableIndex < tableList.length - 1) {
+          setSelectedTableIndex(selectedTableIndex + 1);
+        }
+        return;
+      }
+
+      if (key.name === "k") {
+        if (selectedTableIndex === -1) {
+          setSelectedTableIndex(0);
+        } else if (selectedTableIndex > 0) {
+          setSelectedTableIndex(selectedTableIndex - 1);
+        }
+        return;
+      }
+
+      if (key.name === "return") {
+        const index = selectedTableIndex === -1 ? 0 : selectedTableIndex;
+        const tableName = tableList[index];
+        if (tableName) {
+          handleTableSelect(tableName);
+        }
+        return;
+      }
+
+      return;
+    }
+
     // Quit
     if (key.name === "q") {
       if (pendingQuit) {
@@ -269,15 +333,16 @@ export const App = ({ initialData, initialError }: AppProps) => {
       return;
     }
 
-    // Refresh data
     if (key.name === "r" && key.ctrl) {
-      try {
-        setTableData(loadTableData());
-        setLoadError(null);
-      } catch (error) {
-        setLoadError(
-          error instanceof Error ? error.message : String(error),
-        );
+      if (selectedTableName) {
+        try {
+          setTableData(loadTableData(selectedTableName));
+          setLoadError(null);
+        } catch (error) {
+          setLoadError(
+            error instanceof Error ? error.message : String(error),
+          );
+        }
       }
       return;
     }
@@ -295,16 +360,19 @@ export const App = ({ initialData, initialError }: AppProps) => {
   return (
     <box flexDirection="column" height={height ?? 24}>
       <Header />
-      {/* Centered table area - fills remaining vertical space */}
       <box
         flexGrow={1}
         flexDirection="row"
-        justifyContent="center"
-        alignItems="center"
       >
-        {/* Table container - centered */}
-        <box flexDirection="column">
-          <Table />
+        <SideBar onTableSelect={handleTableSelect} />
+        <box
+          flexGrow={1}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <box flexDirection="column">
+            <Table />
+          </box>
         </box>
       </box>
       <Footer />
