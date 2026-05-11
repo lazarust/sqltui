@@ -149,6 +149,11 @@ export const App = ({ initialData, initialError }: AppProps) => {
             if (selectedTableName) {
               updateCell(selectedTableName, rowId, currentCol, nextValue);
               setTableData(loadTableData(selectedTableName));
+            } else {
+              console.log("Select a table first using the sidebar");
+              setEditMode(false);
+              setEditValue("");
+              return;
             }
           } catch (error) {
             console.error("Unable to save edit:", error);
