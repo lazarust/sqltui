@@ -1,10 +1,11 @@
 # AGENTS.md
 
 ## Purpose
-Guide for coding agents working in `/Users/lazarust/Github/sqltui`.
-Use this file to understand the repo's actual commands, current tooling, and existing coding patterns.
+
+Guide for coding agents working in `sqltui`.
 
 ## Project Snapshot
+
 - Runtime: Bun
 - Language: TypeScript
 - UI: OpenTUI React (`@opentui/react`), React-based declarative API
@@ -15,6 +16,7 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 - State Management: Effect/Atom (`effect/unstable/reactivity/Atom`)
 
 ## Existing Repo Rules
+
 - Existing `AGENTS.md`: none before this file
 - `.cursor/rules/`: none found
 - `.cursorrules`: none found
@@ -22,6 +24,7 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 - If any of those appear later, treat them as higher-priority repo instructions and merge them with this file.
 
 ## Repo Layout
+
 - `src/index.tsx`: entry point, creates renderer, handles init errors
 - `src/App.tsx`: main component with keyboard handling, state management, cleanup
 - `src/components/Table.tsx`: visual rendering of the grid using React
@@ -36,6 +39,7 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 - `tsconfig.json`: strict TypeScript settings with JSX
 
 ## Environment Notes
+
 - Use Bun, not Node.js or npm, for normal repo work.
 - This is an interactive terminal UI; running the app takes over the terminal.
 - `test.db` is part of the working tree and powers the current demo app.
@@ -44,24 +48,29 @@ Use this file to understand the repo's actual commands, current tooling, and exi
 ## Commands
 
 ### Install
+
 - `bun install`
 
 ### Run the app
+
 - Package script: `bun dev`
 - Current script definition: `bun run --watch src/index.tsx`
 - Direct run without watch mode: `bun run src/index.tsx`
 
 ### Build / typecheck
+
 There is no dedicated `build` script.
 Use `bunx tsc --noEmit` as the main non-interactive validation command.
 A `typecheck` script also exists in `package.json`: `bun run typecheck`.
 
 ### Lint
+
 - No lint script exists.
 - No ESLint, Biome, or Prettier config is checked in.
 - Do not invent a linting stack during unrelated tasks.
 
 ### Test
+
 Test files exist in `src/**/*.test.ts`.
 `bun test` runs all test files.
 
@@ -72,12 +81,14 @@ Test files exist in `src/**/*.test.ts`.
 - Use this when you want success even though no tests exist yet: `bun test --pass-with-no-tests`
 
 ## Suggested Validation Order
+
 1. `bunx tsc --noEmit`
 2. `bun test --pass-with-no-tests` when you did not add tests
 3. `bun test path/to/file.test.ts` when you add targeted coverage
 4. Manual TUI run only when the task actually needs interaction-based verification
 
 ## TypeScript Expectations
+
 - `strict: true` is enabled.
 - `noUncheckedIndexedAccess` is enabled.
 - `noImplicitOverride` is enabled.
@@ -87,12 +98,14 @@ Test files exist in `src/**/*.test.ts`.
 - Satisfy strict nullability with control flow and guards instead of suppressing errors.
 
 ## Imports
+
 - Put external imports before local imports.
 - Use explicit `.ts` extensions in relative imports.
 - Prefer named exports; the repo currently has no default exports.
 - Use inline `type` imports when mixing values and types.
 
 ## Formatting
+
 - Prefer double quotes.
 - Keep semicolons.
 - Match the surrounding file instead of reformatting unrelated code.
@@ -101,12 +114,14 @@ Test files exist in `src/**/*.test.ts`.
 - Keep comments short and only where they add real context.
 
 ## Naming
+
 - PascalCase for components and prop interfaces: `Table`, `TableProps`
 - camelCase for functions and variables: `loadTableData`, `selectedRowIndex`
 - UPPER_SNAKE_CASE for constant palettes or fixed maps when appropriate: `COLORS`
 - Prefer descriptive names over abbreviations.
 
 ## Types
+
 - Add explicit return types for exported functions.
 - Prefer narrow unions such as `number | null` over magic sentinel values.
 - Prefer `unknown` over `any`, then narrow.
@@ -114,6 +129,7 @@ Test files exist in `src/**/*.test.ts`.
 - Reuse local types such as `SQLiteValue` instead of rebuilding equivalent unions.
 
 ## Error Handling
+
 - Catch errors at renderer, database, and other I/O boundaries.
 - Log failures with useful context.
 - Do not silently swallow errors.
@@ -121,6 +137,7 @@ Test files exist in `src/**/*.test.ts`.
 - Preserve the existing SQL-safety pattern: validate column names before interpolating identifiers.
 
 ## OpenTUI Guidance
+
 - This repo uses OpenTUI React's declarative style (`@opentui/react`).
 - Create the renderer with `createCliRenderer()` and render React components with `createRoot()`.
 - Shut down through `renderer.destroy()` and related cleanup helpers.
@@ -129,6 +146,7 @@ Test files exist in `src/**/*.test.ts`.
 - Expect `console.log` output to go to the OpenTUI console overlay while the app runs.
 
 ## State And Data Flow
+
 - App state lives in Effect/Atom atoms defined in `src/state.ts`.
 - The renderer is created once in `src/index.tsx`, then React handles updates.
 - Reads go through `getTestRows()`.
@@ -137,12 +155,14 @@ Test files exist in `src/**/*.test.ts`.
 - Prefer small changes that fit this structure instead of introducing a new state abstraction.
 
 ## Testing Guidance For New Work
+
 - Use Bun's built-in test runner.
 - Prefer focused tests close to the behavior you changed.
 - For renderer regressions, use OpenTUI testing helpers if you add snapshot tests.
 - For DB logic, test validation and coercion separately from rendering when practical.
 
 ## Change Management
+
 - Keep patches minimal and local.
 - Do not add dependencies, scripts, or config files unless the task needs them.
 - Do not rename files or restructure modules without clear benefit.
@@ -150,6 +170,7 @@ Test files exist in `src/**/*.test.ts`.
 - If you add tests, scripts, or repo rules, update this file to match.
 
 ## Practical Defaults
+
 1. Read the relevant file first.
 2. Make the smallest correct change.
 3. Run `bunx tsc --noEmit`.
