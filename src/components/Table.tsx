@@ -15,12 +15,7 @@ const MIN_COLUMN_WIDTH = 8;
 const MAX_COLUMN_WIDTH = 30;
 const GUTTER_WIDTH = 5;
 
-interface TableProps {
-  width?: number;
-  height?: number;
-}
-
-export const Table = (props: TableProps) => {
+export const Table = () => {
   const data = useAtomValue(tableDataAtom);
   const selectedRowIndex = useAtomValue(selectedRowIndexAtom);
   const selectedColIndex = useAtomValue(selectedColIndexAtom);

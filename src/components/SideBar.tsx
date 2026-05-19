@@ -4,11 +4,10 @@ import { tableListAtom, selectedTableIndexAtom, sidebarFocusedAtom } from "../st
 import { colors } from "../colors.ts";
 
 interface SideBarProps {
-  onTableSelect: (tableName: string) => void;
   width?: number;
 }
 
-export const SideBar = ({ onTableSelect, width = 20 }: SideBarProps) => {
+export const SideBar = ({ width = 20 }: SideBarProps) => {
   const tables = useAtomValue(tableListAtom);
   const selectedIndex = useAtomValue(selectedTableIndexAtom);
   const sidebarFocused = useAtomValue(sidebarFocusedAtom);

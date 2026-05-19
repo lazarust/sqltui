@@ -1,19 +1,21 @@
 import { TextAttributes } from "@opentui/core";
+import { useTerminalDimensions } from "@opentui/react";
 import { useAtomValue } from "@effect/atom-react";
 import { tableDataAtom } from "../state.ts";
 import { colors } from "../colors.ts";
 
 export const Header = () => {
+  const { width: termWidth } = useTerminalDimensions();
   const tableData = useAtomValue(tableDataAtom);
 
   const columns = tableData.length > 0
     ? Object.keys(tableData[0] as Record<string, unknown>)
     : [];
 
+  const separatorWidth = Math.max(termWidth ?? 80, 40);
 
   return (
     <box height={3} flexDirection="column">
-      {/* Main header line */}
       <box height={1} flexDirection="row">
         <text wrapMode="none" fg={colors.accent} attributes={TextAttributes.BOLD}>
           SQLTUI
@@ -28,10 +30,9 @@ export const Header = () => {
         )}
       </box>
 
-      {/* Separator line */}
       <box height={1}>
         <text wrapMode="none" fg={colors.border}>
-          {"─".repeat(80)}
+          {"─".repeat(separatorWidth)}
         </text>
       </box>
     </box>

@@ -24,24 +24,19 @@ import { loadTableData, loadTableList } from "./utils/dataLoad.ts";
 import { colors } from "./colors.ts";
 import type { SQLiteValue } from "./utils/db.ts";
 
-interface AppProps {
-  initialData: Array<Record<string, unknown>>;
-  initialError: string | null;
-}
-
-export const App = ({ initialData, initialError }: AppProps) => {
+export const App = () => {
   const renderer = useRenderer();
-  const { width: _width, height } = useTerminalDimensions();
+  const { height } = useTerminalDimensions();
 
   // State atoms
   const [selectedRow, setSelectedRow] = useAtom(selectedRowIndexAtom);
   const [selectedCol, setSelectedCol] = useAtom(selectedColIndexAtom);
   const [editMode, setEditMode] = useAtom(editModeAtom);
   const [editValue, setEditValue] = useAtom(editValueAtom);
-  const [_loadError, setLoadError] = useAtom(loadErrorAtom);
-  const [_tableData, setTableData] = useAtom(tableDataAtom);
+  const [, setLoadError] = useAtom(loadErrorAtom);
+  const [, setTableData] = useAtom(tableDataAtom);
   const [pendingQuit, setPendingQuit] = useAtom(pendingQuitAtom);
-  const [_tableList, setTableList] = useAtom(tableListAtom);
+  const [, setTableList] = useAtom(tableListAtom);
   const [selectedTableIndex, setSelectedTableIndex] = useAtom(selectedTableIndexAtom);
   const [selectedTableName, setSelectedTableName] = useAtom(selectedTableNameAtom);
   const [sidebarFocused, setSidebarFocused] = useAtom(sidebarFocusedAtom);
@@ -75,7 +70,7 @@ export const App = ({ initialData, initialError }: AppProps) => {
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : String(error));
     }
-  }, [tableList, setSelectedTableName, setSelectedTableIndex, setSidebarFocused, setSelectedRow, setSelectedCol, setTableData, setLoadError]);
+  }, [tableList, setSelectedTableName, setSelectedTableIndex, setSidebarFocused, setSelectedRow, setSelectedCol, setTableData]);
 
   // Set background color
   useEffect(() => {
@@ -198,7 +193,6 @@ export const App = ({ initialData, initialError }: AppProps) => {
       setEditMode,
       setEditValue,
       setTableData,
-      setLoadError,
     ],
   );
 
@@ -369,7 +363,7 @@ export const App = ({ initialData, initialError }: AppProps) => {
         flexGrow={1}
         flexDirection="row"
       >
-        <SideBar onTableSelect={handleTableSelect} />
+        <SideBar />
         <box
           flexGrow={1}
           justifyContent="center"

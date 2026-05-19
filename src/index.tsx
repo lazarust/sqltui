@@ -10,5 +10,5 @@ const renderer = await createCliRenderer({
 });
 
 createRoot(renderer).render(
-  <App initialData={[]} initialError={null} />,
+  <App />,
 );

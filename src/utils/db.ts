@@ -76,7 +76,7 @@ export const updateTestCell = (rowId: number, column: string, value: SQLiteValue
 
 export const closeDatabase = (): void => {
   if (db !== null) {
-    db.close(false);
+    db.close(true);
     db = null;
   }
 };
