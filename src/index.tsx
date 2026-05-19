@@ -1,0 +1,14 @@
+import { createCliRenderer, ConsolePosition } from "@opentui/core";
+import { createRoot } from "@opentui/react";
+import { App } from "./App.tsx";
+
+const renderer = await createCliRenderer({
+  consoleOptions: {
+    position: ConsolePosition.BOTTOM,
+    sizePercent: 30,
+  },
+});
+
+createRoot(renderer).render(
+  <App />,
+);
