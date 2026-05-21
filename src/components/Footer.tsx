@@ -50,10 +50,13 @@ export const Footer = () => {
       <text wrapMode="none" fg={colors.accent}>i</text>
       <text wrapMode="none" fg={colors.muted}> edit</text>
       <text wrapMode="none" fg={colors.muted}>  │  </text>
+      <text wrapMode="none" fg={colors.accent}>t</text>
+      <text wrapMode="none" fg={colors.muted}> table selector</text>
+      <text wrapMode="none" fg={colors.muted}>  │  </text>
       <text wrapMode="none" fg={colors.accent}>ctrl+r</text>
       <text wrapMode="none" fg={colors.muted}> refresh</text>
       <text wrapMode="none" fg={colors.muted}>  │  </text>
-      <text wrapMode="none" fg={colors.accent}>q</text>
+      <text wrapMode="none" fg={colors.accent}>qq</text>
       <text wrapMode="none" fg={colors.muted}> quit</text>
       <box flexGrow={1} />
       <text wrapMode="none" fg={editMode ? colors.statusText : colors.muted}>
