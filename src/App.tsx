@@ -14,13 +14,15 @@ import {
   tableListAtom,
   selectedTableIndexAtom,
   sidebarFocusedAtom,
+  dbPathAtom,
 } from "./state.ts";
 import { Header } from "./components/Header.tsx";
 import { Footer } from "./components/Footer.tsx";
 import { Table } from "./components/Table.tsx";
 import { SideBar } from "./components/SideBar.tsx";
+import { DatabaseSelector } from "./components/DatabaseSelector.tsx";
 import { closeDatabase, updateCell } from "./utils/db.ts";
-import { loadTableData, loadTableList } from "./utils/dataLoad.ts";
+import { loadTableData } from "./utils/dataLoad.ts";
 import { colors } from "./colors.ts";
 import type { SQLiteValue } from "./utils/db.ts";
 
@@ -36,23 +38,16 @@ export const App = () => {
   const [, setLoadError] = useAtom(loadErrorAtom);
   const [, setTableData] = useAtom(tableDataAtom);
   const [pendingQuit, setPendingQuit] = useAtom(pendingQuitAtom);
-  const [, setTableList] = useAtom(tableListAtom);
   const [selectedTableIndex, setSelectedTableIndex] = useAtom(selectedTableIndexAtom);
   const [selectedTableName, setSelectedTableName] = useAtom(selectedTableNameAtom);
   const [sidebarFocused, setSidebarFocused] = useAtom(sidebarFocusedAtom);
   const tableList = useAtomValue(tableListAtom);
+  const dbPath = useAtomValue(dbPathAtom);
 
   const data = useAtomValue(tableDataAtom);
   const columns = data.length > 0 ? Object.keys(data[0] as Record<string, unknown>) : [];
 
   useEffect(() => {
-    try {
-      const tables = loadTableList();
-      setTableList(tables);
-    } catch (error) {
-      setLoadError(error instanceof Error ? error.message : String(error));
-    }
-
     return () => {
       closeDatabase();
     };
@@ -272,6 +267,10 @@ export const App = () => {
 
   // Main keyboard handler
   useKeyboard((key: KeyEvent) => {
+    if (dbPath === null) {
+      return;
+    }
+
     // Cancel pending quit on any other key
     if (pendingQuit && key.name !== "q") {
       setPendingQuit(false);
@@ -355,6 +354,10 @@ export const App = () => {
     // Handle navigation mode
     handleNavigationKeys(key);
   });
+
+  if (dbPath === null) {
+    return <DatabaseSelector />;
+  }
 
   return (
     <box flexDirection="column" height={height ?? 24}>
