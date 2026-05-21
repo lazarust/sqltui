@@ -1,12 +1,22 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import {
+  openDatabase,
   getTestColumns,
   getTestRows,
   updateTestCell,
+  closeDatabase,
   type SQLiteValue,
 } from "./db.ts";
 
 describe("db utilities", () => {
+  beforeAll(() => {
+    openDatabase("test.db");
+  });
+
+  afterAll(() => {
+    closeDatabase();
+  });
+
   it("should load rows from the test table", () => {
     const rows = getTestRows();
     expect(Array.isArray(rows)).toBe(true);
