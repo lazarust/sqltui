@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicolo-ribaudo/oxc-project.github.io/refs/heads/json-schema/src/public/.oxlintrc.schema.json",
+  "options": {
+    "typeAware": true
+  },
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "require-yield": "off",
+    "typescript/no-base-to-string": "warn"
+  },
+  "ignorePatterns": ["**/node_modules", "**/*.d.ts"]
+}
