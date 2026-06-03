@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/index.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint"
   },
   "devDependencies": {
     "@types/bun": "latest",
