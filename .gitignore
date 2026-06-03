@@ -35,3 +35,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Ignore the test Sqlite DB
 *.db
+
+# ...except checked-in fixtures
+!fixtures/*.db
