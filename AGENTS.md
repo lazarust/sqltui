@@ -12,7 +12,7 @@ Guide for coding agents working in `sqltui`.
 - Entry point: `src/index.tsx`
 - Main UI component: `src/components/Table.tsx`
 - Database utilities: `src/utils/db.ts`
-- Local SQLite file: `test.db`
+- Local SQLite file: `fixtures/test.db`
 - State Management: Effect/Atom (`effect/unstable/reactivity/Atom`)
 
 ## Existing Repo Rules
@@ -42,7 +42,7 @@ Guide for coding agents working in `sqltui`.
 
 - Use Bun, not Node.js or npm, for normal repo work.
 - This is an interactive terminal UI; running the app takes over the terminal.
-- `test.db` is part of the working tree and powers the current demo app.
+- `fixtures/test.db` is tracked in git and powers the current demo app.
 - OpenTUI captures console output into its overlay while the app is running.
 
 ## Commands
@@ -172,7 +172,7 @@ Test files exist in `src/**/*.test.ts`.
 - Keep patches minimal and local.
 - Do not add dependencies, scripts, or config files unless the task needs them.
 - Do not rename files or restructure modules without clear benefit.
-- Do not modify `test.db` unless the task is explicitly about fixture data or schema.
+- Do not modify `fixtures/test.db` unless the task is explicitly about fixture data or schema.
 - If you add tests, scripts, or repo rules, update this file to match.
 
 ## Practical Defaults
