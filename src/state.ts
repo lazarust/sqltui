@@ -14,3 +14,4 @@ export const tableListAtom = Atom.make<Array<string>>([]);
 export const selectedTableIndexAtom = Atom.make<number>(-1);
 export const selectedTableNameAtom = Atom.make<string | null>(null);
 export const sidebarFocusedAtom = Atom.make<boolean>(false);
+export const dbPathAtom = Atom.make<string | null>(null);

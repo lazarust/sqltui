@@ -1,12 +1,24 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import {
+  openDatabase,
+  getCurrentDbPath,
+  getRows,
   getTestColumns,
   getTestRows,
   updateTestCell,
+  closeDatabase,
   type SQLiteValue,
 } from "./db.ts";
 
 describe("db utilities", () => {
+  beforeAll(() => {
+    openDatabase("test.db");
+  });
+
+  afterAll(() => {
+    closeDatabase();
+  });
+
   it("should load rows from the test table", () => {
     const rows = getTestRows();
     expect(Array.isArray(rows)).toBe(true);
@@ -88,6 +100,41 @@ describe("coerceEditedValue logic (mirrored from index.ts)", () => {
   it("should throw on binary data", () => {
     expect(() => coerce(new Uint8Array([1, 2, 3]), "x")).toThrow(
       "Cannot edit binary data",
+    );
+  });
+});
+
+describe("database lifecycle", () => {
+  afterAll(() => {
+    closeDatabase();
+  });
+
+  it("should track the current database path", () => {
+    openDatabase("test.db");
+    expect(getCurrentDbPath()).toBe("test.db");
+    closeDatabase();
+    expect(getCurrentDbPath()).toBeNull();
+  });
+
+  it("should throw on invalid database path", () => {
+    expect(() => openDatabase("/nonexistent/db.sqlite")).toThrow(
+      "Failed to open database",
+    );
+    expect(getCurrentDbPath()).toBeNull();
+  });
+
+  it("should switch to a new database on re-open", () => {
+    openDatabase("test.db");
+    expect(getCurrentDbPath()).toBe("test.db");
+
+    openDatabase("test.db");
+    expect(getCurrentDbPath()).toBe("test.db");
+  });
+
+  it("should throw when querying without an open database", () => {
+    closeDatabase();
+    expect(() => getRows("test")).toThrow(
+      "No database open. Call openDatabase() first.",
     );
   });
 });

@@ -1,16 +1,29 @@
 import { Database } from "bun:sqlite";
 
 let db: Database | null = null;
+let currentDbPath: string | null = null;
+
+export const openDatabase = (path: string): void => {
+  if (db !== null) {
+    db.close(true);
+    db = null;
+  }
+  try {
+    db = new Database(path);
+    currentDbPath = path;
+  } catch (error) {
+    currentDbPath = null;
+    throw new Error(
+      `Failed to open database: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+};
+
+export const getCurrentDbPath = (): string | null => currentDbPath;
 
 const getDatabase = (): Database => {
   if (db === null) {
-    try {
-      db = new Database("test.db");
-    } catch (error) {
-      throw new Error(
-        `Failed to open database: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
+    throw new Error("No database open. Call openDatabase() first.");
   }
   return db;
 };
@@ -78,5 +91,6 @@ export const closeDatabase = (): void => {
   if (db !== null) {
     db.close(true);
     db = null;
+    currentDbPath = null;
   }
 };

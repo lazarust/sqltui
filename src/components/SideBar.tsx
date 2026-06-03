@@ -61,11 +61,6 @@ export const SideBar = ({ width = 20 }: SideBarProps) => {
           })
         )}
       </box>
-      {sidebarFocused && (
-        <box backgroundColor={colors.headerBg} paddingX={1} paddingY={1}>
-          <text fg={colors.muted}>j/k: move  Enter: select</text>
-        </box>
-      )}
     </box>
   );
 };

@@ -1,12 +1,18 @@
 import { TextAttributes } from "@opentui/core";
 import { useTerminalDimensions } from "@opentui/react";
 import { useAtomValue } from "@effect/atom-react";
-import { tableDataAtom } from "../state.ts";
+import { tableDataAtom, dbPathAtom } from "../state.ts";
 import { colors } from "../colors.ts";
+
+const basename = (path: string): string => {
+  const idx = path.lastIndexOf("/");
+  return idx >= 0 ? path.slice(idx + 1) : path;
+};
 
 export const Header = () => {
   const { width: termWidth } = useTerminalDimensions();
   const tableData = useAtomValue(tableDataAtom);
+  const dbPath = useAtomValue(dbPathAtom);
 
   const columns = tableData.length > 0
     ? Object.keys(tableData[0] as Record<string, unknown>)
@@ -25,6 +31,14 @@ export const Header = () => {
             <text wrapMode="none" fg={colors.muted}>  │  </text>
             <text wrapMode="none" fg={colors.text}>
               {columns.length} columns
+            </text>
+          </>
+        )}
+        {dbPath && (
+          <>
+            <text wrapMode="none" fg={colors.muted}>  │  </text>
+            <text wrapMode="none" fg={colors.muted}>
+              {basename(dbPath)}
             </text>
           </>
         )}
