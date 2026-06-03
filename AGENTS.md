@@ -65,9 +65,9 @@ A `typecheck` script also exists in `package.json`: `bun run typecheck`.
 
 ### Lint
 
-- No lint script exists.
-- No ESLint, Biome, or Prettier config is checked in.
-- Do not invent a linting stack during unrelated tasks.
+- `bun run lint` or `bun oxlint` runs oxlint (v1.68.0+) with type-aware rules.
+- Config: `.oxlintrc.json` (TypeScript plugin enabled, correctness/suspicious categories as warnings).
+- CI runs `bun run lint` via `.github/workflows/ci.yml`.
 
 ### Test
 
@@ -86,6 +86,12 @@ Test files exist in `src/**/*.test.ts`.
 2. `bun test --pass-with-no-tests` when you did not add tests
 3. `bun test path/to/file.test.ts` when you add targeted coverage
 4. Manual TUI run only when the task actually needs interaction-based verification
+
+## CI
+
+- Defined in `.github/workflows/ci.yml`.
+- Triggered on push to `main` and pull requests targeting `main`.
+- Steps: `bun install --frozen-lockfile` → `bun run typecheck` → `bun run lint` → `bun test`.
 
 ## TypeScript Expectations
 
