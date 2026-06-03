@@ -12,7 +12,7 @@ import {
 
 describe("db utilities", () => {
   beforeAll(() => {
-    openDatabase("test.db");
+    openDatabase("fixtures/test.db");
   });
 
   afterAll(() => {
@@ -110,8 +110,8 @@ describe("database lifecycle", () => {
   });
 
   it("should track the current database path", () => {
-    openDatabase("test.db");
-    expect(getCurrentDbPath()).toBe("test.db");
+    openDatabase("fixtures/test.db");
+    expect(getCurrentDbPath()).toBe("fixtures/test.db");
     closeDatabase();
     expect(getCurrentDbPath()).toBeNull();
   });
@@ -124,11 +124,11 @@ describe("database lifecycle", () => {
   });
 
   it("should switch to a new database on re-open", () => {
-    openDatabase("test.db");
-    expect(getCurrentDbPath()).toBe("test.db");
+    openDatabase("fixtures/test.db");
+    expect(getCurrentDbPath()).toBe("fixtures/test.db");
 
-    openDatabase("test.db");
-    expect(getCurrentDbPath()).toBe("test.db");
+    openDatabase("fixtures/test.db");
+    expect(getCurrentDbPath()).toBe("fixtures/test.db");
   });
 
   it("should throw when querying without an open database", () => {

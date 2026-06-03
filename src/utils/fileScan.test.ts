@@ -6,7 +6,7 @@ import { scanDbFiles } from "./fileScan.ts";
 
 describe("scanDbFiles", () => {
   it("should find .db files in the current directory", () => {
-    const files = scanDbFiles(".");
+    const files = scanDbFiles("fixtures");
     expect(files.length).toBeGreaterThan(0);
     expect(files).toContain("test.db");
   });

@@ -5,11 +5,14 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/index.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/react": "^19.0.0"
+    "@types/react": "^19.0.0",
+    "oxlint": "^1.68.0",
+    "oxlint-tsgolint": "^0.23.0"
   },
   "peerDependencies": {
     "typescript": "^5"
